@@ -1,8 +1,8 @@
-name: Terraform 2 Azure 
+name: Create Infra with Terraforn
 
 on:
   push:
-    branches: [dev]
+    branches: [main]
   pull_request:
     branches: [ main ]
 # Allows to run this workflow manually from the Actions tab
