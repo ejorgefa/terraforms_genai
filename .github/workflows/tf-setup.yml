@@ -39,8 +39,8 @@ jobs:
    
       - name: Create Terraform backend state storage
         run: |
-          echo "🎯 Setting default subscription for: " ${{ vars.SUBSCRIPTION_ID }}
-          az account set --subscription ${{ vars.SUBSCRIPTION_ID }}
+          echo "🎯 Setting default subscription for: " ${{ secrets.SUBSCRIPTION_ID }}
+          az account set --subscription ${{ secrets.SUBSCRIPTION_ID }}
 
           echo "🎯 Getting resource group named: " ${{ vars.RESOURCE_GROUP_NAME }}
           RG_EXISTS=$(az group exists --name ${{ vars.RESOURCE_GROUP_NAME }} )
@@ -75,7 +75,12 @@ jobs:
           STORAGE_ACCOUNT_CONNECTION_STRING=$(az storage account show-connection-string --resource-group ${{ vars.RESOURCE_GROUP_NAME }}  --name ${{ vars.STORAGE_ACCOUNT_NAME }} --query "connectionString"  -o tsv)
           echo $STORAGE_ACCOUNT_CONNECTION_STRING
 
-          echo "🎯 Setting default subscription for: " ${{ vars.SUBSCRIPTION_ACR_ID }}
-          az account set --subscription ${{ vars.SUBSCRIPTION_ACR_ID }}
+          echo "🎯 Setting default subscription for: " ${{ secrets.SUBSCRIPTION_ACR_ID }}
+          az account set --subscription ${{ secrets.SUBSCRIPTION_ACR_ID }}
 
+          echo "🎯 Getting container registry data..."
+          ACR_PASSWORD=$(az acr credential show --name $acr_server | jq -r '.passwords[0].value')
+          ACR_USERNAME=$(az acr credential show --name $acr_server | jq -r '.username')
 
+          echo "🎯 Changing default subscription for: " ${{ secrets.SUBSCRIPTION_ID }}
+          az account set --subscription ${{ secrets.SUBSCRIPTION_ID }}
