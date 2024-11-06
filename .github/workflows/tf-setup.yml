@@ -9,6 +9,8 @@ on:
   workflow_dispatch:
 
 env:
+  LOCATION: ${{ vars.LOCATION }}
+  RESOURCE_GROUP: ${{ vars.RESOURCE_GROUP }}
   PROCESS: Planning
   WORKING_DIRECTORY: ./
 
@@ -45,8 +47,8 @@ jobs:
           inlineScript: |
             az version
 
-            if [ $(az group exists --name ${{ var.RESOURCE_GROUP }} = false ]; then 
-              az group create --name ${{ var.RESOURCE_GROUP }} --location ${{ var.LOCATION }}
+            if [ $(az group exists --name $RESOURCE_GROUP = false ]; then 
+              az group create --name $RESOURCE_GROUP --location ${{ vars.LOCATION }}
             else
               echo $resourceGroup
             fi
