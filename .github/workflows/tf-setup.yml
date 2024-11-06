@@ -2,15 +2,15 @@ name: Create Infra with Terraforn
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [ main ]
+    branches: [dev]
+  # pull_request:
+  #   branches: [ main ]
 # Allows to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 env:
   PROCESS: planning
-  WORKING_DIRECTORY: ./
+  WORKING_DIRECTORY: .github/terraform
 
 permissions: read-all
 
@@ -44,12 +44,13 @@ jobs:
     name: Deploy to Azure with Terraform
     runs-on: ubuntu-latest
     environment: Development
+    needs: [scan-terraform-config]
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
       run:
         shell: bash
-        working-directory: ${{ env.WORKING_DIRECTORY }}
+    #    working-directory: ${{ env.WORKING_DIRECTORY }}
        
     steps:
       # Checkout the repository to the GitHub Actions runner
