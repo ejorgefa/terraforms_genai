@@ -10,7 +10,7 @@ on:
 
 env:
   PROCESS: planning
-  WORKING_DIRECTORY: ../../terraform
+  WORKING_DIRECTORY: ../terraform
 
 permissions: read-all
 
@@ -50,7 +50,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ${{ env.WORKING_DIRECTORY }}
+    #    working-directory: ${{ env.WORKING_DIRECTORY }}
        
     steps:
       # Checkout the repository to the GitHub Actions runner
