@@ -10,7 +10,7 @@ on:
 
 env:
   PROCESS: planning
-  TERRAFORM_DIRECTORY: .github/terraform
+  TERRAFORM_DIRECTORY: .github/terraform/
 
 permissions: read-all
 
@@ -126,7 +126,7 @@ jobs:
 
     steps:
       - name: Install Terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v3.1.2
         with:
           terraform_version: 1.9.8
 
