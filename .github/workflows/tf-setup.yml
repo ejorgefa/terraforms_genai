@@ -29,7 +29,7 @@ jobs:
     steps:
       # Checkout the repository to the GitHub Actions runner
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.2.2
 
       - name: Login to Azure with Service Principal
         uses: Azure/login@v2.2.0
@@ -79,8 +79,8 @@ jobs:
           az account set --subscription ${{ secrets.SUBSCRIPTION_ACR_ID }}
 
           echo "🎯 Getting container registry data..."
-          ACR_PASSWORD=$(az acr credential show --name ${{ vars.ADC_SERVER }} | jq -r '.passwords[0].value')
-          ACR_USERNAME=$(az acr credential show --name ${{ vars.ADC_SERVER }} | jq -r '.username')
+          ACR_PASSWORD=$(az acr credential show --name ${{ vars.ACR_SERVER }} | jq -r '.passwords[0].value')
+          ACR_USERNAME=$(az acr credential show --name ${{ vars.ACR_SERVER }} | jq -r '.username')
 
           echo "🎯 Changing default subscription for: " ${{ secrets.SUBSCRIPTION_ID }}
           az account set --subscription ${{ secrets.SUBSCRIPTION_ID }}
