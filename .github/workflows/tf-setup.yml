@@ -54,4 +54,4 @@ jobs:
               echo "Storage account not found. Creating..."
             az storage account create --resource-group ${{ vars.RESOURCE_GROUP_NAME }} --name ${{ vars.STORAGE_ACCOUNT_NAME }}  --sku Standard_LRS --encryption-services blob
           fi
-          STORAGE_ACCOUNT=$(az storage account show --name $STORAGE_ACCOUNT_NAME  -o tsv --query id)
+          STORAGE_ACCOUNT=$(az storage account show --name ${{ vars.STORAGE_ACCOUNT_NAME }}  -o tsv --query id)
