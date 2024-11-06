@@ -9,7 +9,6 @@ on:
   workflow_dispatch:
 
 env:
-  RESOURCE_GROUP_NAME: ${{ vars.RESOURCE_GROUP_NAME }}
   PROCESS: Planning
   WORKING_DIRECTORY: ./
 
@@ -40,12 +39,11 @@ jobs:
       
       - name: Create Terraform backend state storage
         run: |
-          echo ""
-          echo "🎯 Getting resource group named: " $RESOURCE_GROUP_NAME
-          RG_EXISTS=$(az group exists --name $RESOURCE_GROUP_NAME )
+          echo "🎯 Getting resource group named: " ${{ vars.RESOURCE_GROUP_NAME }}
+          RG_EXISTS=$(az group exists --name ${{ vars.RESOURCE_GROUP_NAME }} )
           if [ $RG_EXISTS == "false" ]; then
             echo "Resource group not found, creating... "
-            az group create --name $RESOURCE_GROUP_NAME --location westeurope 
+            az group create --name ${{ vars.RESOURCE_GROUP_NAME }} --location ${{ vars.LOCATION }}
           fi
-          RESOURCE_GROUP_ID=$(az group show -n $RESOURCE_GROUP_NAME  -o tsv --query id)
+          RESOURCE_GROUP_ID=$(az group show -n ${{ vars.RESOURCE_GROUP_NAME }}  -o tsv --query id)
 
