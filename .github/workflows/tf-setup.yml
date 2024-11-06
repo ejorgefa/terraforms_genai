@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-WORKING_DIRECTORY: ./
+  WORKING_DIRECTORY: ./
 
 permissions: read-all
 
