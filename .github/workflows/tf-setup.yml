@@ -65,3 +65,11 @@ jobs:
             az storage container create --name ${{ vars.CONTAINER_NAME }} --account-name ${{ vars.STORAGE_ACCOUNT_NAME }}
           fi
           STORAGE_CONTAINER=$(az storage account show --name ${{ vars.STORAGE_ACCOUNT_NAME }}   -o tsv --query primaryEndpoints.blob)${{ vars.CONTAINER_NAME }}
+
+          echo "🎯 Getting storage account key..."
+          STORAGE_ACCOUNT_KEY=$(az storage account keys list --resource-group ${{ vars.RESOURCE_GROUP_NAME }}  --account-name ${{ vars.STORAGE_ACCOUNT_NAME }} --query "[0].value" -o tsv)
+
+          echo ""
+          echo "🎯 Getting storage connection string..."
+          STORAGE_ACCOUNT_CONNECTION_STRING=$(az storage account show-connection-string --resource-group ${{ vars.RESOURCE_GROUP_NAME }}  --name ${{ vars.STORAGE_ACCOUNT_NAME }} --query "connectionString"  -o tsv)
+          echo $STORAGE_ACCOUNT_CONNECTION_STRING
