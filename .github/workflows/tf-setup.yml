@@ -113,16 +113,9 @@ jobs:
           echo "🎯 Changing default subscription for: " ${{ secrets.SUBSCRIPTION_ID }}
           az account set --subscription ${{ secrets.SUBSCRIPTION_ID }}
 
-      - name: Initializing terraform
-        run:
-        shell: bash
-        working-directory: ${{ env.WORKING_DIRECTORY }}
-          echo "🎯 Running Terraform Init!"
-          terraform init \
-            -upgrade \
-            -backend-config="resource_group_name=${RESOURCE_GROUP_NAME}" \
-            -backend-config="storage_account_name=${STORAGE_ACCOUNT_NAME}" \
-            -backend-config="container_name=${CONTAINER_NAME}" \
-            -backend-config="key=${STORAGE_ACCOUNT_KEY}" \
-            -input=true \
-            -reconfigure
+      # Install the latest version of Terraform CLI
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          directory: ${{ env.WORKING_DIRECTORY }}
+          terraform_version: 1.9.8
