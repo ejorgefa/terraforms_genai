@@ -50,8 +50,7 @@ jobs:
     defaults:
       run:
         shell: bash
-    #    working-directory: ${{ env.WORKING_DIRECTORY }}
-       
+
     steps:
       # Checkout the repository to the GitHub Actions runner
       - name: Checkout
@@ -115,8 +114,8 @@ jobs:
           az account set --subscription ${{ secrets.SUBSCRIPTION_ID }}
 
       - name: Initializing terraform
-        run: |
-
+        run:
+        working-directory: ${{ env.WORKING_DIRECTORY }}
           echo "🎯 Running Terraform Init!"
           terraform init \
             -upgrade \
