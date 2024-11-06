@@ -19,18 +19,19 @@ jobs:
     runs-on: ubuntu-latest
     environment: Development
 
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
       run:
         shell: bash
         working-directory: ${{ env.WORKING_DIRECTORY }}
     
-        steps:
-          # Checkout the repository to the GitHub Actions runner
-          - name: Checkout
-            uses: actions/checkout@v3
-    
-          - name: Login to Azure with Service Principal
-            uses: Azure/login@v1.4.3
-            with:
-              # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
-              creds: ${{ secrets.AZURE_CREDENTIALS }}
+    steps:
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Login to Azure with Service Principal
+        uses: Azure/login@v1.4.3
+        with:
+          # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
