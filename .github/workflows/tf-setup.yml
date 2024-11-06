@@ -1,4 +1,4 @@
-name: Create Remote State
+name: Terraform 2 Azure 
 
 on:
   push:
@@ -75,15 +75,21 @@ jobs:
           STORAGE_ACCOUNT_CONNECTION_STRING=$(az storage account show-connection-string --resource-group ${{ vars.RESOURCE_GROUP_NAME }}  --name ${{ vars.STORAGE_ACCOUNT_NAME }} --query "connectionString"  -o tsv)
           echo $STORAGE_ACCOUNT_CONNECTION_STRING
 
+      - name: Getting ACR credentials
+        run: |
+          
           echo "🎯 Setting default subscription for: " ${{ secrets.SUBSCRIPTION_ACR_ID }}
           az account set --subscription ${{ secrets.SUBSCRIPTION_ACR_ID }}
-
+          
           echo "🎯 Getting container registry data..."
           ACR_PASSWORD=$(az acr credential show --name ${{ vars.ACR_SERVER }} | jq -r '.passwords[0].value')
           ACR_USERNAME=$(az acr credential show --name ${{ vars.ACR_SERVER }} | jq -r '.username')
 
           echo "🎯 Changing default subscription for: " ${{ secrets.SUBSCRIPTION_ID }}
           az account set --subscription ${{ secrets.SUBSCRIPTION_ID }}
+
+      - name: Initializing terraform
+        run: |
 
           echo "🎯 Running Terraform Init!"
           terraform init \
