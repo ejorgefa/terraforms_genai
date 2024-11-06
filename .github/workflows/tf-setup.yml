@@ -114,11 +114,10 @@ jobs:
           echo "🎯 Changing default subscription for: " ${{ secrets.SUBSCRIPTION_ID }}
           az account set --subscription ${{ secrets.SUBSCRIPTION_ID }}
 
-  # Install the latest version of Terraform CLI
-  initialize-terraform:
-    - name: Terraforn init
-    runs-on: ubuntu-latest
 
+  initialize-terraform:
+    name: Terraforn init
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
@@ -129,18 +128,3 @@ jobs:
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: 1.9.8
-    
-      -name: Terraform Init
-      id: init
-      run: |
-        # Initialize a new or existing Terraform working directory by creating initial files, 
-        # loading any remote state, downloading modules, etc.
-
-        terraform init
-        
-        # Either use the backend.tf file with the config inside or use the following command line
-        # terraform init -backend-config="storage_account_name=$STORAGE_ACCOUNT_NAME" \
-        #                -backend-config="container_name=$CONTAINER_NAME" \
-        #                -backend-config="resource_group_name=$RESOURCE_GROUP_NAME"
-
-
