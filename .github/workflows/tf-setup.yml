@@ -47,3 +47,11 @@ jobs:
           fi
           RESOURCE_GROUP_ID=$(az group show -n ${{ vars.RESOURCE_GROUP_NAME }}  -o tsv --query id)
 
+          echo "🎯 Getting storage account named: " ${{ vars.STORAGE_ACCOUNT_NAME }}
+          STORAGE_ACCOUNT_NOT_FOUND=$(az storage account check-name --name ${{ vars.STORAGE_ACCOUNT_NAME }}  --query nameAvailable)
+          if [ $STORAGE_ACCOUNT_NOT_FOUND == "true" ]; then
+              echo ""
+              echo "Storage account not found. Creating..."
+            az storage account create --resource-group ${{ vars.RESOURCE_GROUP_NAME }} --name ${{ vars.STORAGE_ACCOUNT_NAME }}  --sku Standard_LRS --encryption-services blob
+          fi
+          STORAGE_ACCOUNT=$(az storage account show --name $STORAGE_ACCOUNT_NAME  -o tsv --query id)
