@@ -79,8 +79,8 @@ jobs:
           az account set --subscription ${{ secrets.SUBSCRIPTION_ACR_ID }}
 
           echo "🎯 Getting container registry data..."
-          ACR_PASSWORD=$(az acr credential show --name $acr_server | jq -r '.passwords[0].value')
-          ACR_USERNAME=$(az acr credential show --name $acr_server | jq -r '.username')
+          ACR_PASSWORD=$(az acr credential show --name ${{ vars.ADC_SERVER }} | jq -r '.passwords[0].value')
+          ACR_USERNAME=$(az acr credential show --name ${{ vars.ADC_SERVER }} | jq -r '.username')
 
           echo "🎯 Changing default subscription for: " ${{ secrets.SUBSCRIPTION_ID }}
           az account set --subscription ${{ secrets.SUBSCRIPTION_ID }}
