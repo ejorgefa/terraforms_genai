@@ -117,5 +117,6 @@ jobs:
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          directory: ${{ env.WORKING_DIRECTORY }}
           terraform_version: 1.9.8
+          
+          
