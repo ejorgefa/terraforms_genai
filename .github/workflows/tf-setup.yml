@@ -121,7 +121,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ${{ TERAFORM DIRECTORY }}
+        working-directory: ${{ env.TERAFORM_DIRECTORY }}
 
     steps:
       - name: Install Terraform
