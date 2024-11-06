@@ -1,0 +1,13 @@
+{
+    "tenantId": "3df6e774-7c8d-4508-8d07-ffc87c202d4d",
+    "subscription_id": "f160f06a-ac2d-4779-a454-e265dc381318",
+    "azure_ad_client_id": "127da96a-8880-44cb-b28f-052e84de409a",
+    "azure_ad_client_secret": "xWR8Q~t6xGQhgFhO46DKhKEeXuf2IgAMGhsUQaA~",
+    "location": "northeurope",
+    "short_location": "eun",
+    "client_name": "adc",
+    "project_name": "personahub",
+
+    "acr_subscription_id": "f160f06a-ac2d-4779-a454-e265dc381318",
+    "acr_server": "acracdgenaidev.azurecr.io"
+}
