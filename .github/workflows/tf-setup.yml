@@ -39,7 +39,7 @@ jobs:
       
       - name: Create Terraform backend state storage
         run: |
-        
+
           echo "🎯 Getting resource group named: " ${{ vars.RESOURCE_GROUP_NAME }}
           RG_EXISTS=$(az group exists --name ${{ vars.RESOURCE_GROUP_NAME }} )
           if [ $RG_EXISTS == "false" ]; then
@@ -56,3 +56,12 @@ jobs:
             az storage account create --resource-group ${{ vars.RESOURCE_GROUP_NAME }} --name ${{ vars.STORAGE_ACCOUNT_NAME }}  --sku Standard_LRS --encryption-services blob
           fi
           STORAGE_ACCOUNT=$(az storage account show --name ${{ vars.STORAGE_ACCOUNT_NAME }}  -o tsv --query id)
+
+          echo "🎯 Getting storage account container named: " ${{ vars.CONTAINER_NAME }}
+          STORAGE_COUNTAINER_EXISTS=$(az storage container exists --name ${{ vars.CONTAINER_NAME }} --account-name ${{ vars.STORAGE_ACCOUNT_NAME }}  --query exists)
+          if [ $STORAGE_COUNTAINER_EXISTS == "false" ]; then
+            echo ""
+            echo "Blob container not found. Creating..."
+            az storage container create --name ${{ vars.CONTAINER_NAME }} --account-name ${{ vars.STORAGE_ACCOUNT_NAME }}
+          fi
+          STORAGE_CONTAINER=$(az storage account show --name ${{ vars.STORAGE_ACCOUNT_NAME }}   -o tsv --query primaryEndpoints.blob)${{ vars.CONTAINER_NAME }}
