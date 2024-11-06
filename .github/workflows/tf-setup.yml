@@ -10,7 +10,7 @@ on:
 
 env:
   PROCESS: planning
-  WORKING_DIRECTORY: ../terraform/
+  WORKING_DIRECTORY: .github/terraform
 
 permissions: read-all
 
