@@ -115,6 +115,7 @@ jobs:
 
       - name: Initializing terraform
         run:
+        shell: bash
         working-directory: ${{ env.WORKING_DIRECTORY }}
           echo "🎯 Running Terraform Init!"
           terraform init \
