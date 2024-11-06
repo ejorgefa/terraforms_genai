@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-  RESOURCE_GROUP_NAME: ${{ vars.RESOURCE_GROUP }}
+  RESOURCE_GROUP_NAME: ${{ vars.RESOURCE_GROUP_NAME }}
   PROCESS: Planning
   WORKING_DIRECTORY: ./
 
