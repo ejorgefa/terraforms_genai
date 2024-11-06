@@ -45,8 +45,8 @@ jobs:
           inlineScript: |
             az version
 
-            if [ $(az group exists --name ${{ RESOURCE_GRPOUP }} = false ]; then 
-              az group create --name ${{ RESOURCE_GRPOUP }} --location ${{ LOCATION }}
+            if [ $(az group exists --name ${{ RESOURCE_GROUP }} = false ]; then 
+              az group create --name ${{ RESOURCE_GROUP }} --location ${{ LOCATION }}
             else
               echo $resourceGroup
             fi
