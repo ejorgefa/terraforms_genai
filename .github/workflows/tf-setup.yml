@@ -39,6 +39,7 @@ jobs:
       
       - name: Create Terraform backend state storage
         run: |
+        
           echo "🎯 Getting resource group named: " ${{ vars.RESOURCE_GROUP_NAME }}
           RG_EXISTS=$(az group exists --name ${{ vars.RESOURCE_GROUP_NAME }} )
           if [ $RG_EXISTS == "false" ]; then
