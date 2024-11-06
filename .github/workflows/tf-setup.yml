@@ -1,0 +1,36 @@
+name: Create Remote State
+
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [ main ]
+# Allows to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+WORKING_DIRECTORY: ./
+
+permissions: read-all
+
+jobs:
+  deploy-azure-infra-terraform:
+    name: Deploy to Azure with Terraform
+    runs-on: ubuntu-latest
+    environment: Development
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+    
+        steps:
+          # Checkout the repository to the GitHub Actions runner
+          - name: Checkout
+            uses: actions/checkout@v3
+    
+          - name: Login to Azure with Service Principal
+            uses: Azure/login@v1.4.3
+            with:
+              # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
+              creds: ${{ secrets.AZURE_CREDENTIALS }}
