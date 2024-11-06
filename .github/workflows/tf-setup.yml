@@ -10,7 +10,7 @@ on:
 
 env:
   PROCESS: planning
-  TERRAFORM_DIRECTORY: .github/terraform/
+  TERRAFORM_DIRECTORY: blob/dev/.github/terraform/
 
 permissions: read-all
 
@@ -118,7 +118,7 @@ jobs:
   initialize-terraform:
     name: Terraforn init
     runs-on: ubuntu-latest
-    needs: [deploy-azure-infra-terraform]
+  #  needs: [deploy-azure-infra-terraform]
     defaults:
       run:
         shell: bash
