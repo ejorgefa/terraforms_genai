@@ -118,10 +118,11 @@ jobs:
   initialize-terraform:
     name: Terraforn init
     runs-on: ubuntu-latest
+    needs: [deploy-azure-infra-terraform]
     defaults:
       run:
         shell: bash
-        working-directory: ${{ env.TERAFORM_DIRECTORY }}
+        working-directory: ${{ env.TERRAFORM_DIRECTORY }}
 
     steps:
       - name: Install Terraform
