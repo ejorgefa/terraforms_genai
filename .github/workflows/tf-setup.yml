@@ -132,31 +132,30 @@ jobs:
           # baseline: cloudformation/.checkov.baseline # optional: Path to a generated baseline file. Will only report results not in the baseline.
           # container_user: 1000 # optional: Define what UID and / or what GID to run the container under to prevent permission issuesclear
 
+  initialize-terraform:
+    name: Terraforn init
+    runs-on: ubuntu-latest
+  #  needs: [deploy-azure-infra-terraform]
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ env.TERRAFORM_DIRECTORY }}
 
-  # initialize-terraform:
-  #   name: Terraforn init
-  #   runs-on: ubuntu-latest
-  # #  needs: [deploy-azure-infra-terraform]
-  #   defaults:
-  #     run:
-  #       shell: bash
-  #       working-directory: ${{ env.TERRAFORM_DIRECTORY }}
+    steps:
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3.1.2
+        with:
+          terraform_version: 1.9.8
 
-  #   steps:
-  #     - name: Install Terraform
-  #       uses: hashicorp/setup-terraform@v3.1.2
-  #       with:
-  #         terraform_version: 1.9.8
+      - name: Terraform Init
+        id: init
+        run: |
+          # Initialize a new or existing Terraform working directory by creating initial files, 
+          # loading any remote state, downloading modules, etc.
 
-  #     - name: Terraform Init
-  #       id: init
-  #       run: |
-  #         # Initialize a new or existing Terraform working directory by creating initial files, 
-  #         # loading any remote state, downloading modules, etc.
-
-  #         terraform init
+          terraform init
           
-  #         # Either use the backend.tf file with the config inside or use the following command line
-  #         # terraform init -backend-config="storage_account_name=$STORAGE_ACCOUNT_NAME" \
-  #         #                -backend-config="container_name=$CONTAINER_NAME" \
-  #         #                -backend-config="resource_group_name=$RESOURCE_GROUP_NAME"
+          # Either use the backend.tf file with the config inside or use the following command line
+          # terraform init -backend-config="storage_account_name=$STORAGE_ACCOUNT_NAME" \
+          #                -backend-config="container_name=$CONTAINER_NAME" \
+          #                -backend-config="resource_group_name=$RESOURCE_GROUP_NAME"
