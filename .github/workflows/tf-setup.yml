@@ -12,7 +12,9 @@ env:
   PROCESS: planning
   TERRAFORM_DIRECTORY: ./terraform
 
-permissions: read-all
+  permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
 
 jobs:
 
@@ -32,11 +34,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
-      - name: Login to Azure with Service Principal
-        uses: Azure/login@v2.2.0
+      # - name: Login to Azure with Service Principal
+      #   uses: Azure/login@v2.2.0
+      #   with:
+      #     # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
+      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: 'Az CLI login'
+        uses: azure/login@a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0
         with:
-          # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.CLIENT_ID }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
    
       - name: Create Terraform backend state storage
         run: |
