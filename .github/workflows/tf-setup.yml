@@ -94,17 +94,7 @@ jobs:
           if [ $STORAGE_BLOB_EXISTS == "false" ]; then
             echo ""
             echo "Storage blob not found. Creating..."
-            cat <<EOT > terraform.tfstate
-            terraform {
-              backend "azurerm" {
-                resource_group_name   = "${{ vars.RESOURCE_GROUP_NAME }}"
-                storage_account_name  = "${{ vars.STORAGE_ACCOUNT_NAME  }}"
-                container_name        = "${{ vars.CONTAINER_NAME }}"
-                key                   = "${{ vars.BLOB_NAME }}"
-              }
-            }
-            EOT
-          fi
+          az storage blob directory create --account-name ${{ vars.STORAGE_ACCOUNT_NAME }} --container-name ${{ vars.CONTAINER_NAME }} --directory-path terraform.tfstate --auth-mode login
           STORAGE_BLOB=$(az storage blob show --name ${{ vars.BLOB_NAME }} -o tsv --query primaryEndpoints.blob)${{ vars.BLOB_NAME }}
 
       # Run 'az acr update -n adcpersonahubdev --admin-enabled true' to enable admin first.
