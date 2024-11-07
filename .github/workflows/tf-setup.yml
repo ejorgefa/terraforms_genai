@@ -155,24 +155,25 @@ jobs:
       with:
         terraform_version: 1.9.8
 
-    - name: Initializing terraform
-      id: init
-      env:
-        ARM_CLIENT_ID: ${{ secrets.CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-        ARM_TENANT_ID: ${{ secrets.TENANT_ID }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
+    # Initializing terraform
 
-      run: |
-        echo "🎯 Running Terraform Init!"
-        terraform init \
-          -upgrade \
-          -backend-config="resource_group_name=${{ vars.RESOURCE_GROUP_NAME }}" \
-          -backend-config="storage_account_name=${{ vars.STORAGE_ACCOUNT_NAME }}" \
-          -backend-config="container_name=${{ vars.CONTAINER_NAME }}" \
-          -backend-config="key=${{ vars.BLOB_NAME }}" \
-          -input=true \
-          -reconfigure
+    - name: Azure login
+      uses: azure/login@v2.2.0
+      with:
+        client-id: ${{ secrets.CLIENT_ID }}
+        tenant-id: ${{ secrets.TENANT_ID }}
+        subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
+
+        run: |
+          echo "🎯 Running Terraform Init!"
+          terraform init \
+            -upgrade \
+            -backend-config="resource_group_name=${{ vars.RESOURCE_GROUP_NAME }}" \
+            -backend-config="storage_account_name=${{ vars.STORAGE_ACCOUNT_NAME }}" \
+            -backend-config="container_name=${{ vars.CONTAINER_NAME }}" \
+            -backend-config="key=${{ vars.BLOB_NAME }}" \
+            -input=true \
+            -reconfigure
 
 
 
