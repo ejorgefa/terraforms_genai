@@ -135,7 +135,7 @@ jobs:
   initialize-terraform:
     name: Terraforn init
     runs-on: ubuntu-latest
-  #  needs: [deploy-azure-infra-terraform]
+    needs: [deploy-azure-infra-terraform]
     defaults:
       run:
         shell: bash
