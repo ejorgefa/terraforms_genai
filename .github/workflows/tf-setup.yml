@@ -21,10 +21,47 @@ permissions:
   id-token: write
   contents: read
 
+# jobs:
+#   build-and-deploy:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Azure login
+#         uses: azure/login@v2
+#         with:
+#           client-id: ${{ secrets.CLIENT_ID }}
+#           tenant-id: ${{ secrets.TENANT_ID }}
+#           subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
+
+#       - name: Azure CLI script
+#         uses: azure/cli@v2
+#         with:
+#           azcliversion: latest
+#           inlineScript: |
+#             az account show
 jobs:
-  build-and-deploy:
+
+  deploy-azure-infra-terraform:
+    name: Deploy to Azure with Terraform
     runs-on: ubuntu-latest
+    environment: Development
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./
+
     steps:
+      # # Checkout the repository to the GitHub Actions runner
+      # - name: Checkout
+      #   uses: actions/checkout@v4.2.2
+
+      # - name: Login to Azure with Service Principal
+      #   uses: Azure/login@v2.2.0
+      #   with:
+      #     # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
+      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Azure login
         uses: azure/login@v2
         with:
@@ -38,36 +75,6 @@ jobs:
           azcliversion: latest
           inlineScript: |
             az account show
-# jobs:
-
-#   deploy-azure-infra-terraform:
-#     name: Deploy to Azure with Terraform
-#     runs-on: ubuntu-latest
-#     environment: Development
-
-#     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
-#     defaults:
-#       run:
-#         shell: bash
-#         working-directory: ./
-
-#     steps:
-#       # Checkout the repository to the GitHub Actions runner
-#       - name: Checkout
-#         uses: actions/checkout@v4.2.2
-
-      # - name: Login to Azure with Service Principal
-      #   uses: Azure/login@v2.2.0
-      #   with:
-      #     # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
-      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      # - name: 'Az CLI login'
-      #   uses: Azure/login@v2.2.0
-      #   with:
-      #     client-id: ${{ secrets.CLIENT_ID }}
-      #     tenant-id: ${{ secrets.TENANT_ID }}
-      #     subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
 
    
       # - name: Create Terraform backend state storage
