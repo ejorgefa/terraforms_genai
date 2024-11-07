@@ -34,58 +34,58 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
-      - name: Azure OIDC login
+      # Login to Azure with OIDC
+      - name: Azure login
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.CLIENT_ID }}
           tenant-id: ${{ secrets.TENANT_ID }}
           subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
-
+    
       - name: Azure CLI script
-        uses: azure/cli@v2
+        uses: azure/cli@v2.65.0
         with:
           azcliversion: latest
           inlineScript: |
             az account show
     
+      - name: Create Terraform backend state storage
+        run: |
+          echo "🎯 Setting default subscription for: " ${{ secrets.SUBSCRIPTION_ID }}
+          az account set --subscription ${{ secrets.SUBSCRIPTION_ID }}
 
-      # - name: Create Terraform backend state storage
-      #   run: |
-      #     echo "🎯 Setting default subscription for: " ${{ secrets.SUBSCRIPTION_ID }}
-      #     az account set --subscription ${{ secrets.SUBSCRIPTION_ID }}
+          echo "🎯 Getting resource group named: " ${{ vars.RESOURCE_GROUP_NAME }}
+          RG_EXISTS=$(az group exists --name ${{ vars.RESOURCE_GROUP_NAME }} )
+          if [ $RG_EXISTS == "false" ]; then
+            echo "Resource group not found, creating... "
+            az group create --name ${{ vars.RESOURCE_GROUP_NAME }} --location ${{ vars.LOCATION }}
+          fi
+          RESOURCE_GROUP_ID=$(az group show -n ${{ vars.RESOURCE_GROUP_NAME }}  -o tsv --query id)
 
-      #     echo "🎯 Getting resource group named: " ${{ vars.RESOURCE_GROUP_NAME }}
-      #     RG_EXISTS=$(az group exists --name ${{ vars.RESOURCE_GROUP_NAME }} )
-      #     if [ $RG_EXISTS == "false" ]; then
-      #       echo "Resource group not found, creating... "
-      #       az group create --name ${{ vars.RESOURCE_GROUP_NAME }} --location ${{ vars.LOCATION }}
-      #     fi
-      #     RESOURCE_GROUP_ID=$(az group show -n ${{ vars.RESOURCE_GROUP_NAME }}  -o tsv --query id)
+          echo "🎯 Getting storage account named: " ${{ vars.STORAGE_ACCOUNT_NAME }}
+          STORAGE_ACCOUNT_NOT_FOUND=$(az storage account check-name --name ${{ vars.STORAGE_ACCOUNT_NAME }}  --query nameAvailable)
+          if [ $STORAGE_ACCOUNT_NOT_FOUND == "true" ]; then
+              echo ""
+              echo "Storage account not found. Creating..."
+            az storage account create --resource-group ${{ vars.RESOURCE_GROUP_NAME }} --name ${{ vars.STORAGE_ACCOUNT_NAME }}  --sku Standard_LRS --encryption-services blob
+          fi
+          STORAGE_ACCOUNT=$(az storage account show --name ${{ vars.STORAGE_ACCOUNT_NAME }}  -o tsv --query id)
 
-      #     echo "🎯 Getting storage account named: " ${{ vars.STORAGE_ACCOUNT_NAME }}
-      #     STORAGE_ACCOUNT_NOT_FOUND=$(az storage account check-name --name ${{ vars.STORAGE_ACCOUNT_NAME }}  --query nameAvailable)
-      #     if [ $STORAGE_ACCOUNT_NOT_FOUND == "true" ]; then
-      #         echo ""
-      #         echo "Storage account not found. Creating..."
-      #       az storage account create --resource-group ${{ vars.RESOURCE_GROUP_NAME }} --name ${{ vars.STORAGE_ACCOUNT_NAME }}  --sku Standard_LRS --encryption-services blob
-      #     fi
-      #     STORAGE_ACCOUNT=$(az storage account show --name ${{ vars.STORAGE_ACCOUNT_NAME }}  -o tsv --query id)
+          echo "🎯 Getting storage account container named: " ${{ vars.CONTAINER_NAME }}
+          STORAGE_COUNTAINER_EXISTS=$(az storage container exists --name ${{ vars.CONTAINER_NAME }} --account-name ${{ vars.STORAGE_ACCOUNT_NAME }}  --query exists)
+          if [ $STORAGE_COUNTAINER_EXISTS == "false" ]; then
+            echo ""
+            echo "Blob container not found. Creating..."
+            az storage container create --name ${{ vars.CONTAINER_NAME }} --account-name ${{ vars.STORAGE_ACCOUNT_NAME }}
+          fi
+          STORAGE_CONTAINER=$(az storage account show --name ${{ vars.STORAGE_ACCOUNT_NAME }}   -o tsv --query primaryEndpoints.blob)${{ vars.CONTAINER_NAME }}
 
-      #     echo "🎯 Getting storage account container named: " ${{ vars.CONTAINER_NAME }}
-      #     STORAGE_COUNTAINER_EXISTS=$(az storage container exists --name ${{ vars.CONTAINER_NAME }} --account-name ${{ vars.STORAGE_ACCOUNT_NAME }}  --query exists)
-      #     if [ $STORAGE_COUNTAINER_EXISTS == "false" ]; then
-      #       echo ""
-      #       echo "Blob container not found. Creating..."
-      #       az storage container create --name ${{ vars.CONTAINER_NAME }} --account-name ${{ vars.STORAGE_ACCOUNT_NAME }}
-      #     fi
-      #     STORAGE_CONTAINER=$(az storage account show --name ${{ vars.STORAGE_ACCOUNT_NAME }}   -o tsv --query primaryEndpoints.blob)${{ vars.CONTAINER_NAME }}
+          echo "🎯 Getting storage account key..."
+          STORAGE_ACCOUNT_KEY=$(az storage account keys list --resource-group ${{ vars.RESOURCE_GROUP_NAME }}  --account-name ${{ vars.STORAGE_ACCOUNT_NAME }} --query "[0].value" -o tsv)
 
-      #     echo "🎯 Getting storage account key..."
-      #     STORAGE_ACCOUNT_KEY=$(az storage account keys list --resource-group ${{ vars.RESOURCE_GROUP_NAME }}  --account-name ${{ vars.STORAGE_ACCOUNT_NAME }} --query "[0].value" -o tsv)
-
-      #     echo "🎯 Getting storage connection string..."
-      #     STORAGE_ACCOUNT_CONNECTION_STRING=$(az storage account show-connection-string --resource-group ${{ vars.RESOURCE_GROUP_NAME }}  --name ${{ vars.STORAGE_ACCOUNT_NAME }} --query "connectionString"  -o tsv)
-      #     echo $STORAGE_ACCOUNT_CONNECTION_STRING
+          echo "🎯 Getting storage connection string..."
+          STORAGE_ACCOUNT_CONNECTION_STRING=$(az storage account show-connection-string --resource-group ${{ vars.RESOURCE_GROUP_NAME }}  --name ${{ vars.STORAGE_ACCOUNT_NAME }} --query "connectionString"  -o tsv)
+          echo $STORAGE_ACCOUNT_CONNECTION_STRING
 
       # - name: Getting ACR credentials
       #   run: |
