@@ -115,11 +115,6 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@master
     
-      - name: Install Terraform
-        uses: hashicorp/setup-terraform@v3.1.2
-        with:
-          terraform_version: 1.9.8
-
       - name: Run Checkov Scan
         id: checkov
         uses: bridgecrewio/checkov-action@master
@@ -136,6 +131,25 @@ jobs:
           # config_file: path/this_file
           # baseline: cloudformation/.checkov.baseline # optional: Path to a generated baseline file. Will only report results not in the baseline.
           # container_user: 1000 # optional: Define what UID and / or what GID to run the container under to prevent permission issuesclear
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3.1.2
+        with:
+          terraform_version: 1.9.8
+
+      - name: Terraform Init
+        id: init
+        env:
+          ARM_CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          ARM_TENANT_ID: ${{ secrets.TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
+        run: |
+          # Initialize a new or existing Terraform working directory by creating initial files, 
+          # loading any remote state, downloading modules, etc.
+
+          terraform init
+
 
 
 
