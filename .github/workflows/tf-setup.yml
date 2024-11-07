@@ -105,6 +105,7 @@ jobs:
   scan-terraform-config:
     runs-on: ubuntu-latest
     name: Scan Terraform with Checov
+    needs: [deploy-azure-infra-terraform]
     steps:
       - name: Checkout repo
         uses: actions/checkout@master
