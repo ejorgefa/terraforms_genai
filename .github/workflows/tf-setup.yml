@@ -99,7 +99,7 @@ jobs:
               backend "azurerm" {
                 resource_group_name   = "${{ vars.RESOURCE_GROUP_NAME }}"
                 storage_account_name  = "${{ vars.STORAGE_ACCOUNT_NAME  }}"
-                container_name        = "${{  vars.$CONTAINER_NAME }}"
+                container_name        = "${{ vars.CONTAINER_NAME }}"
                 key                   = "${{ vars.BLOB_NAME }}"
               }
             }
@@ -124,7 +124,7 @@ jobs:
   scan-terraform-config:
     runs-on: ubuntu-latest
     name: Scan Terraform with Checov
-#    needs: [deploy-azure-infra-terraform]
+    needs: [deploy-azure-infra-terraform]
 
     steps:
       - name: Checkout repo
