@@ -114,6 +114,11 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@master
+    
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3.1.2
+        with:
+          terraform_version: 1.9.8
 
       - name: Run Checkov Scan
         id: checkov
@@ -132,10 +137,7 @@ jobs:
           # baseline: cloudformation/.checkov.baseline # optional: Path to a generated baseline file. Will only report results not in the baseline.
           # container_user: 1000 # optional: Define what UID and / or what GID to run the container under to prevent permission issuesclear
 
-      - name: Install Terraform
-        uses: hashicorp/setup-terraform@v3.1.2
-        with:
-          terraform_version: 1.9.8
+
 
   # initialize-terraform:
   #   name: 'Terraform'
