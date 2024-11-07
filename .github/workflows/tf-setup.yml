@@ -156,6 +156,13 @@ jobs:
         terraform_version: 1.9.8
 
     - name: Initializing terraform
+      id: init
+      env:
+        ARM_CLIENT_ID: ${{ secrets.CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+        ARM_TENANT_ID: ${{ secrets.TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
+
       run: |
         echo "🎯 Running Terraform Init!"
         terraform init \
