@@ -107,10 +107,6 @@ jobs:
     name: Scan Terraform with Checov
   #  needs: [deploy-azure-infra-terraform]
 
-    # defaults:
-    #   run:
-    #     working-directory: .github/terraform
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@master
@@ -142,6 +138,7 @@ jobs:
     defaults:
       run:
         shell: bash
+        working-directory: ${{ env.TERRAFORM_DIRECTORY }}
 
     steps:
     # Checkout the repository to the GitHub Actions runner
