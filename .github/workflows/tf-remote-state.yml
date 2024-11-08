@@ -57,7 +57,6 @@ jobs:
             az storage container create --name ${{ vars.CONTAINER_NAME }} --account-name ${{ vars.STORAGE_ACCOUNT_NAME }}
 
             # generate backend.tf file
-            cd $WORKING_DIRECTORY
             cat <<EOT > terraform.tfstate
             terraform {
               backend "azurerm" {
@@ -69,5 +68,5 @@ jobs:
             }
             EOT
 
-            cat backend.tf
+            cat terraform.tfstate
 
