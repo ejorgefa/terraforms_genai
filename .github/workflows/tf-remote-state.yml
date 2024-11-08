@@ -42,22 +42,38 @@ jobs:
           # Azure CLI version to be used to execute the script. If not provided, latest version is used
           # azcliversion: 2.34.1 # optional, default is agentazcliversion
           inlineScript: |
-            az version
 
-            # Create resource group
-            az group create --name ${{ vars.RESOURCE_GROUP_NAME }} --location ${{ vars.LOCATION }}
+            echo "🎯 Setting default subscription for: " ${{ secrets.SUBSCRIPTION_ID }}
+            az account set --subscription ${{ secrets.SUBSCRIPTION_ID }}
 
-            # Create storage account
-            az storage account create --name ${{ vars.STORAGE_ACCOUNT_NAME }} \
-              --resource-group ${{ vars.RESOURCE_GROUP_NAME }} \
-              --sku Standard_LRS \
-              --encryption-services blob
+            echo "🎯 Getting resource group named: " ${{ vars.RESOURCE_GROUP_NAME }}
+            RG_EXISTS=$(az group exists --name ${{ vars.RESOURCE_GROUP_NAME }} )
+            if [ $RG_EXISTS == "false" ]; then
+              echo "Resource group not found, creating... "
+              az group create --name ${{ vars.RESOURCE_GROUP_NAME }} --location ${{ vars.LOCATION }}
+            fi
+            RESOURCE_GROUP_ID=$(az group show -n ${{ vars.RESOURCE_GROUP_NAME }} -o tsv --query id)
 
-            # Create blob container
-            az storage container create --name ${{ vars.CONTAINER_NAME }} --account-name ${{ vars.STORAGE_ACCOUNT_NAME }}
+            echo "🎯 Getting storage account named: " ${{ vars.STORAGE_ACCOUNT_NAME }}
+            STORAGE_ACCOUNT_NOT_FOUND=$(az storage account check-name --name ${{ vars.STORAGE_ACCOUNT_NAME }}  --query nameAvailable)
+            if [ $STORAGE_ACCOUNT_NOT_FOUND == "true" ]; then
+              echo ""
+              echo "Storage account not found. Creating..."
+              az storage account create --resource-group ${{ vars.RESOURCE_GROUP_NAME }} --name ${{ vars.STORAGE_ACCOUNT_NAME }}  --sku Standard_LRS --encryption-services blob
+            fi
+            STORAGE_ACCOUNT=$(az storage account show --name ${{ vars.STORAGE_ACCOUNT_NAME }} -o tsv --query id)
+
+            echo "🎯 Getting storage account container named: " ${{ vars.CONTAINER_NAME }}
+            STORAGE_COUNTAINER_EXISTS=$(az storage container exists --name ${{ vars.CONTAINER_NAME }} --account-name ${{ vars.STORAGE_ACCOUNT_NAME }}  --query exists)
+            if [ $STORAGE_COUNTAINER_EXISTS == "false" ]; then
+              echo ""
+              echo "Blob container not found. Creating..."
+              az storage container create --name ${{ vars.CONTAINER_NAME }} --account-name ${{ vars.STORAGE_ACCOUNT_NAME }}
+            fi
+            STORAGE_CONTAINER=$(az storage account show --name ${{ vars.STORAGE_ACCOUNT_NAME }} -o tsv --query primaryEndpoints.blob)${{ vars.CONTAINER_NAME }}
 
             # generate backend.tf file
-            cd ${{ env.WORKING_DIRECTOR }}
+            # cd ${{ env.WORKING_DIRECTOR }}
             cat <<EOT > terraform.tfstate
             terraform {
               backend "azurerm" {
