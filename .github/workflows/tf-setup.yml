@@ -10,7 +10,7 @@ on:
 
 env:
   PROCESS: planning
-  TERRAFORM_DIRECTORY: .git/terraform
+  TERRAFORM_DIRECTORY: ../terraform
 
 permissions:
   id-token: write
