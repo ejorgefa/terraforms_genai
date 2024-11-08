@@ -154,49 +154,37 @@ jobs:
         working-directory: ${{ env.TERRAFORM_DIRECTORY }}
 
     steps:
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v4
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
 
-    - name: Install Terraform
-      uses: hashicorp/setup-terraform@v3.1.2
-      with:
-        terraform_version: 1.9.8
-
-  #   # Initializing terraform
-
-    - name: Azure login
-      uses: azure/login@v2.2.0
-      with:
-        client-id: ${{ secrets.CLIENT_ID }}
-        tenant-id: ${{ secrets.TENANT_ID }}
-        subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
-
-    - name: Terraform Init
-      id: init
-
-      run: |
-
-        terraform init
+      - name: Login to Azure with Service Principal
+        uses: Azure/login@v2.2.0
+        with:
+          # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
 
-  #         echo "🎯 Running Terraform Plan
-  #         terraform plan  \
-  #           -out=./tfplan \
-  #           -var-file="./vars/${stage}/${stage}.tfvars" \
-  #           -var="stage=${stage}" \
-  #           -var="location=${location}" \
-  #           -var="client_name=${client_name}" \
-  #           -var="project_name=${project_name}" \
-  #           -var="subscription_id=${subscription_id}" \
-  #           -var="tenantId=${tenantId}" \
-  #           -var="azure_ad_client_id=${AZURE_AD_CLIENT_ID}" \
-  #           -var="azure_ad_client_secret=${AZURE_AD_CLIENT_SECRET}" \
-  #           -var="resource_group_name=${RESOURCE_GROUP_NAME}" \
-  #           -var="container_registry_admin_password=${ACR_PASSWORD}" \
-  #           -var="container_registry_login_server=${acr_server}" \
-  #           -var="container_registry_admin_username=${ACR_USERNAME}" \
-  #           -var="storage_account_connection_string=${STORAGE_ACCOUNT_CONNECTION_STRING}" \
-  #           -var="nextauth_secret=${NEXTAUTH_SECRET}" \
-  #           -refresh=false
+      # Install the latest version of Terraform CLI
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3.1.2
+        with:
+          terraform_version: 1.9.8
 
+      - name: Terraform Init
+        id: init
+        env:
+          ARM_CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          ARM_TENANT_ID: ${{ secrets.TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
+        run: |
+          # Initialize a new or existing Terraform working directory by creating initial files, 
+          # loading any remote state, downloading modules, etc.
+
+          terraform init
+          
+          # Either use the backend.tf file with the config inside or use the following command line
+          # terraform init -backend-config="storage_account_name=$STORAGE_ACCOUNT_NAME" \
+          #                -backend-config="container_name=$CONTAINER_NAME" \
+          #                -backend-config="resource_group_name=$RESOURCE_GROUP_NAME"
