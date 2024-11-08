@@ -42,6 +42,7 @@ jobs:
           # Azure CLI version to be used to execute the script. If not provided, latest version is used
           # azcliversion: 2.34.1 # optional, default is agentazcliversion
           inlineScript: |
+            az account show
 
             echo "🎯 Setting default subscription for: " ${{ secrets.SUBSCRIPTION_ID }}
             az account set --subscription ${{ secrets.SUBSCRIPTION_ID }}
@@ -71,6 +72,20 @@ jobs:
               az storage container create --name ${{ vars.CONTAINER_NAME }} --account-name ${{ vars.STORAGE_ACCOUNT_NAME }}
             fi
             STORAGE_CONTAINER=$(az storage account show --name ${{ vars.STORAGE_ACCOUNT_NAME }} -o tsv --query primaryEndpoints.blob)${{ vars.CONTAINER_NAME }}
+
+            echo "🎯 Getting storage account key..."
+            STORAGE_ACCOUNT_KEY=$(az storage account keys list --resource-group ${{ vars.RESOURCE_GROUP_NAME }}  --account-name ${{ vars.STORAGE_ACCOUNT_NAME }} --query "[0].value" -o tsv)
+            echo $STORAGE_ACCOUNT_KEY
+
+            echo "🎯 Getting storage connection string..."
+            STORAGE_ACCOUNT_CONNECTION_STRING=$(az storage account show-connection-string --resource-group ${{ vars.RESOURCE_GROUP_NAME }}  --name ${{ vars.STORAGE_ACCOUNT_NAME }} --query "connectionString"  -o tsv)
+            echo $STORAGE_ACCOUNT_CONNECTION_STRING
+
+            echo "🎯 Getting storage blob named: " ${{ vars.BLOB_NAME }}
+            STORAGE_BLOB_EXISTS=$(az storage blob exists --name ${{ vars.BLOB_NAME }} --account-name ${{ vars.STORAGE_ACCOUNT_NAME }}  --query exists)
+            if [ $STORAGE_BLOB_EXISTS == "false" ]; then
+              echo ""
+              echo "Storage blob not found. Creating..."
 
             # generate backend.tf file
             cd ${{ env.WORKING_DIRECTOR }}
