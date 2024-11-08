@@ -4,10 +4,6 @@ on:
   workflow_dispatch:
 
 env:
-  RESOURCE_GROUP_NAME: ${{ vars.RESOURCE_GROUP_NAME }}
-  STORAGE_ACCOUNT_NAME: ${{ vars.STORAGE_ACCOUNT_NAME }}
-  CONTAINER_NAME: ${{ vars.CONTAINER_NAME }}
-  BLOB_NAME: ${{ vars.BLOB_NAME }}
   WORKING_DIRECTORY: .github/terraform
 
 permissions: read-all
@@ -47,26 +43,26 @@ jobs:
             az version
 
             # Create resource group
-            az group create --name $RESOURCE_GROUP_NAME --location westeurope
+            az group create --name ${{ vars.RESOURCE_GROUP_NAME }} --location ${{ vars.LOCATION }}
 
             # Create storage account
-            az storage account create --name $STORAGE_ACCOUNT_NAME \
+            az storage account create --name ${{ vars.STORAGE_ACCOUNT_NAME }} \
               --resource-group $RESOURCE_GROUP_NAME \
               --sku Standard_LRS \
               --encryption-services blob
 
             # Create blob container
-            az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME
+            az storage container create --name ${{ vars.CONTAINER_NAME }} --account-name ${{ vars.STORAGE_ACCOUNT_NAME }}
 
             # generate backend.tf file
             cd $WORKING_DIRECTORY
-            cat <<EOT > backend.tf
+            cat <<EOT > terraform.tfstate
             terraform {
               backend "azurerm" {
-                resource_group_name   = "$RESOURCE_GROUP_NAME"
-                storage_account_name  = "$STORAGE_ACCOUNT_NAME"
-                container_name        = "$CONTAINER_NAME"
-                key                   = "$BLOB_NAME"
+                resource_group_name   = "${{ vars.RESOURCE_GROUP_NAME }}"
+                storage_account_name  = "${{ vars.STORAGE_ACCOUNT_NAME }}"
+                container_name        = "${{ vars.CONTAINER_NAME }}"
+                key                   = "${{ vars.BLOB_NAME }}"
               }
             }
             EOT
