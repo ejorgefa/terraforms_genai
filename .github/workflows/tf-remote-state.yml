@@ -73,7 +73,7 @@ jobs:
             STORAGE_CONTAINER=$(az storage account show --name ${{ vars.STORAGE_ACCOUNT_NAME }} -o tsv --query primaryEndpoints.blob)${{ vars.CONTAINER_NAME }}
 
             # generate backend.tf file
-            # cd ${{ env.WORKING_DIRECTOR }}
+            cd ${{ env.WORKING_DIRECTOR }}
             cat <<EOT > terraform.tfstate
             terraform {
               backend "azurerm" {
