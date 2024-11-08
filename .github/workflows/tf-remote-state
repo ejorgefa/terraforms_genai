@@ -1,0 +1,75 @@
+name: Create Terraform Remote State
+
+on: 
+  workflow_dispatch:
+
+env:
+  RESOURCE_GROUP_NAME: ${{ vars.RESOURCE_GROUP_NAME }}
+  STORAGE_ACCOUNT_NAME: ${{ vars.STORAGE_ACCOUNT_NAME }}
+  CONTAINER_NAME: ${{ vars.CONTAINER_NAME }}
+  BLOB_NAME: ${{ vars.BLOB_NAME }}
+  WORKING_DIRECTORY: .github/terraform
+
+permissions: read-all
+
+jobs:
+
+  deploy-azure-infra-terraform:
+    name: Deploy to Azure with Terraform
+    runs-on: ubuntu-latest
+    permissions: write-all
+    environment: dev
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+
+    steps:
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      # Login to Azure with OIDC
+      - name: Azure login
+        uses: azure/login@v2.2.0
+        with:
+          client-id: ${{ secrets.CLIENT_ID }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
+
+      - name: Create Terraform backend state storage
+        uses: Azure/cli@v2.1.0
+        with:
+          # Azure CLI version to be used to execute the script. If not provided, latest version is used
+          # azcliversion: 2.34.1 # optional, default is agentazcliversion
+          inlineScript: |
+            az version
+
+            # Create resource group
+            az group create --name $RESOURCE_GROUP_NAME --location westeurope
+
+            # Create storage account
+            az storage account create --name $STORAGE_ACCOUNT_NAME \
+              --resource-group $RESOURCE_GROUP_NAME \
+              --sku Standard_LRS \
+              --encryption-services blob
+
+            # Create blob container
+            az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME
+
+            # generate backend.tf file
+            cd $WORKING_DIRECTORY
+            cat <<EOT > backend.tf
+            terraform {
+              backend "azurerm" {
+                resource_group_name   = "$RESOURCE_GROUP_NAME"
+                storage_account_name  = "$STORAGE_ACCOUNT_NAME"
+                container_name        = "$CONTAINER_NAME"
+                key                   = "$BLOB_NAME"
+              }
+            }
+            EOT
+
+            cat backend.tf
+
