@@ -20,124 +20,124 @@ jobs:
 
 #######################################################################################################################################################################################################
 
-  deploy-azure-infra-terraform:
-    name: Deploy to Azure with Terraform
-    runs-on: ubuntu-latest
-    environment: Development
+  # deploy-azure-infra-terraform:
+  #   name: Deploy to Azure with Terraform
+  #   runs-on: ubuntu-latest
+  #   environment: Development
 
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
-    defaults:
-      run:
-        shell: bash
-        working-directory: ./
+  #   # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+  #   defaults:
+  #     run:
+  #       shell: bash
+  #       working-directory: ./
 
-    steps:
-      # Checkout the repository to the GitHub Actions runner
-      - name: Checkout
-        uses: actions/checkout@v4.2.2
+  #   steps:
+  #     # Checkout the repository to the GitHub Actions runner
+  #     - name: Checkout
+  #       uses: actions/checkout@v4.2.2
 
-      # Login to Azure with OIDC
-      - name: Azure login
-        uses: azure/login@v2.2.0
-        with:
-          client-id: ${{ secrets.CLIENT_ID }}
-          tenant-id: ${{ secrets.TENANT_ID }}
-          subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
+  #     # Login to Azure with OIDC
+  #     - name: Azure login
+  #       uses: azure/login@v2.2.0
+  #       with:
+  #         client-id: ${{ secrets.CLIENT_ID }}
+  #         tenant-id: ${{ secrets.TENANT_ID }}
+  #         subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
     
-      - name: Azure CLI script
-        uses: azure/cli@v2
-        with:
-          azcliversion: latest
-          inlineScript: |
-            az account show
+  #     - name: Azure CLI script
+  #       uses: azure/cli@v2
+  #       with:
+  #         azcliversion: latest
+  #         inlineScript: |
+  #           az account show
     
-      - name: Create Terraform backend state storage
-        run: |
-          echo "🎯 Setting default subscription for: " ${{ secrets.SUBSCRIPTION_ID }}
-          az account set --subscription ${{ secrets.SUBSCRIPTION_ID }}
+  #     - name: Create Terraform backend state storage
+  #       run: |
+  #         echo "🎯 Setting default subscription for: " ${{ secrets.SUBSCRIPTION_ID }}
+  #         az account set --subscription ${{ secrets.SUBSCRIPTION_ID }}
 
-          echo "🎯 Getting resource group named: " ${{ vars.RESOURCE_GROUP_NAME }}
-          RG_EXISTS=$(az group exists --name ${{ vars.RESOURCE_GROUP_NAME }} )
-          if [ $RG_EXISTS == "false" ]; then
-            echo "Resource group not found, creating... "
-            az group create --name ${{ vars.RESOURCE_GROUP_NAME }} --location ${{ vars.LOCATION }}
-          fi
-          RESOURCE_GROUP_ID=$(az group show -n ${{ vars.RESOURCE_GROUP_NAME }} -o tsv --query id)
+  #         echo "🎯 Getting resource group named: " ${{ vars.RESOURCE_GROUP_NAME }}
+  #         RG_EXISTS=$(az group exists --name ${{ vars.RESOURCE_GROUP_NAME }} )
+  #         if [ $RG_EXISTS == "false" ]; then
+  #           echo "Resource group not found, creating... "
+  #           az group create --name ${{ vars.RESOURCE_GROUP_NAME }} --location ${{ vars.LOCATION }}
+  #         fi
+  #         RESOURCE_GROUP_ID=$(az group show -n ${{ vars.RESOURCE_GROUP_NAME }} -o tsv --query id)
 
-          echo "🎯 Getting storage account named: " ${{ vars.STORAGE_ACCOUNT_NAME }}
-          STORAGE_ACCOUNT_NOT_FOUND=$(az storage account check-name --name ${{ vars.STORAGE_ACCOUNT_NAME }}  --query nameAvailable)
-          if [ $STORAGE_ACCOUNT_NOT_FOUND == "true" ]; then
-            echo ""
-            echo "Storage account not found. Creating..."
-            az storage account create --resource-group ${{ vars.RESOURCE_GROUP_NAME }} --name ${{ vars.STORAGE_ACCOUNT_NAME }}  --sku Standard_LRS --encryption-services blob
-          fi
-          STORAGE_ACCOUNT=$(az storage account show --name ${{ vars.STORAGE_ACCOUNT_NAME }} -o tsv --query id)
+  #         echo "🎯 Getting storage account named: " ${{ vars.STORAGE_ACCOUNT_NAME }}
+  #         STORAGE_ACCOUNT_NOT_FOUND=$(az storage account check-name --name ${{ vars.STORAGE_ACCOUNT_NAME }}  --query nameAvailable)
+  #         if [ $STORAGE_ACCOUNT_NOT_FOUND == "true" ]; then
+  #           echo ""
+  #           echo "Storage account not found. Creating..."
+  #           az storage account create --resource-group ${{ vars.RESOURCE_GROUP_NAME }} --name ${{ vars.STORAGE_ACCOUNT_NAME }}  --sku Standard_LRS --encryption-services blob
+  #         fi
+  #         STORAGE_ACCOUNT=$(az storage account show --name ${{ vars.STORAGE_ACCOUNT_NAME }} -o tsv --query id)
 
-          echo "🎯 Getting storage account container named: " ${{ vars.CONTAINER_NAME }}
-          STORAGE_COUNTAINER_EXISTS=$(az storage container exists --name ${{ vars.CONTAINER_NAME }} --account-name ${{ vars.STORAGE_ACCOUNT_NAME }}  --query exists)
-          if [ $STORAGE_COUNTAINER_EXISTS == "false" ]; then
-            echo ""
-            echo "Blob container not found. Creating..."
-            az storage container create --name ${{ vars.CONTAINER_NAME }} --account-name ${{ vars.STORAGE_ACCOUNT_NAME }}
-          fi
-          STORAGE_CONTAINER=$(az storage account show --name ${{ vars.STORAGE_ACCOUNT_NAME }} -o tsv --query primaryEndpoints.blob)${{ vars.CONTAINER_NAME }}
+  #         echo "🎯 Getting storage account container named: " ${{ vars.CONTAINER_NAME }}
+  #         STORAGE_COUNTAINER_EXISTS=$(az storage container exists --name ${{ vars.CONTAINER_NAME }} --account-name ${{ vars.STORAGE_ACCOUNT_NAME }}  --query exists)
+  #         if [ $STORAGE_COUNTAINER_EXISTS == "false" ]; then
+  #           echo ""
+  #           echo "Blob container not found. Creating..."
+  #           az storage container create --name ${{ vars.CONTAINER_NAME }} --account-name ${{ vars.STORAGE_ACCOUNT_NAME }}
+  #         fi
+  #         STORAGE_CONTAINER=$(az storage account show --name ${{ vars.STORAGE_ACCOUNT_NAME }} -o tsv --query primaryEndpoints.blob)${{ vars.CONTAINER_NAME }}
 
-          echo "🎯 Getting storage account key..."
-          STORAGE_ACCOUNT_KEY=$(az storage account keys list --resource-group ${{ vars.RESOURCE_GROUP_NAME }}  --account-name ${{ vars.STORAGE_ACCOUNT_NAME }} --query "[0].value" -o tsv)
+  #         echo "🎯 Getting storage account key..."
+  #         STORAGE_ACCOUNT_KEY=$(az storage account keys list --resource-group ${{ vars.RESOURCE_GROUP_NAME }}  --account-name ${{ vars.STORAGE_ACCOUNT_NAME }} --query "[0].value" -o tsv)
 
-          echo "🎯 Getting storage connection string..."
-          STORAGE_ACCOUNT_CONNECTION_STRING=$(az storage account show-connection-string --resource-group ${{ vars.RESOURCE_GROUP_NAME }}  --name ${{ vars.STORAGE_ACCOUNT_NAME }} --query "connectionString"  -o tsv)
-          echo $STORAGE_ACCOUNT_CONNECTION_STRING
+  #         echo "🎯 Getting storage connection string..."
+  #         STORAGE_ACCOUNT_CONNECTION_STRING=$(az storage account show-connection-string --resource-group ${{ vars.RESOURCE_GROUP_NAME }}  --name ${{ vars.STORAGE_ACCOUNT_NAME }} --query "connectionString"  -o tsv)
+  #         echo $STORAGE_ACCOUNT_CONNECTION_STRING
 
-          echo "🎯 Getting storage blob named: " ${{ vars.BLOB_NAME }}
-          STORAGE_BLOB_EXISTS=$(az storage blob exists --name ${{ vars.BLOB_NAME }} --account-name ${{ vars.STORAGE_ACCOUNT_NAME }}  --query exists)
-          if [ $STORAGE_BLOB_EXISTS == "false" ]; then
-            echo ""
-            echo "Storage blob not found. Creating..."
-          az storage blob directory create --account-name ${{ vars.STORAGE_ACCOUNT_NAME }} --container-name ${{ vars.CONTAINER_NAME }} --directory-path terraform.tfstate --auth-mode login
-          STORAGE_BLOB=$(az storage blob show --name ${{ vars.BLOB_NAME }} -o tsv --query primaryEndpoints.blob)${{ vars.BLOB_NAME }}
+  #         echo "🎯 Getting storage blob named: " ${{ vars.BLOB_NAME }}
+  #         STORAGE_BLOB_EXISTS=$(az storage blob exists --name ${{ vars.BLOB_NAME }} --account-name ${{ vars.STORAGE_ACCOUNT_NAME }}  --query exists)
+  #         if [ $STORAGE_BLOB_EXISTS == "false" ]; then
+  #           echo ""
+  #           echo "Storage blob not found. Creating..."
+  #         az storage blob directory create --account-name ${{ vars.STORAGE_ACCOUNT_NAME }} --container-name ${{ vars.CONTAINER_NAME }} --directory-path terraform.tfstate --auth-mode login
+  #         STORAGE_BLOB=$(az storage blob show --name ${{ vars.BLOB_NAME }} -o tsv --query primaryEndpoints.blob)${{ vars.BLOB_NAME }}
 
-      # Run 'az acr update -n adcpersonahubdev --admin-enabled true' to enable admin first.
-      - name: Getting ACR credentials
-        run: |
+  #     # Run 'az acr update -n adcpersonahubdev --admin-enabled true' to enable admin first.
+  #     - name: Getting ACR credentials
+  #       run: |
           
-          echo "🎯 Setting default subscription for: " ${{ secrets.SUBSCRIPTION_ACR_ID }}
-          az account set --subscription ${{ secrets.SUBSCRIPTION_ACR_ID }}
+  #         echo "🎯 Setting default subscription for: " ${{ secrets.SUBSCRIPTION_ACR_ID }}
+  #         az account set --subscription ${{ secrets.SUBSCRIPTION_ACR_ID }}
           
-          echo "🎯 Getting container registry data..."
-          ACR_PASSWORD=$(az acr credential show --name ${{ vars.ACR_SERVER }} | jq -r '.passwords[0].value')
-          ACR_USERNAME=$(az acr credential show --name ${{ vars.ACR_SERVER }} | jq -r '.username')
+  #         echo "🎯 Getting container registry data..."
+  #         ACR_PASSWORD=$(az acr credential show --name ${{ vars.ACR_SERVER }} | jq -r '.passwords[0].value')
+  #         ACR_USERNAME=$(az acr credential show --name ${{ vars.ACR_SERVER }} | jq -r '.username')
 
-          echo "🎯 Changing default subscription for: " ${{ secrets.SUBSCRIPTION_ID }}
-          az account set --subscription ${{ secrets.SUBSCRIPTION_ID }}
+  #         echo "🎯 Changing default subscription for: " ${{ secrets.SUBSCRIPTION_ID }}
+  #         az account set --subscription ${{ secrets.SUBSCRIPTION_ID }}
 
 #######################################################################################################################################################################################################
 
-  scan-terraform-config:
-    runs-on: ubuntu-latest
-    name: Scan Terraform with Checov
-    needs: [deploy-azure-infra-terraform]
+#   scan-terraform-config:
+#     runs-on: ubuntu-latest
+#     name: Scan Terraform with Checov
+# #    needs: [deploy-azure-infra-terraform]
 
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@master
+#     steps:
+#       - name: Checkout repo
+#         uses: actions/checkout@master
     
-      - name: Run Checkov Scan
-        id: checkov
-        uses: bridgecrewio/checkov-action@master
-        with:
-          directory: ${{ env.TERRAFORM_DIRECTORY }}
-          soft_fail: true # optional: do not return an error code if there are failed checks
-          # check: CKV_AWS_1 # optional: run only a specific check_id. can be comma separated list
-          # skip_check: CKV_AWS_2 # optional: skip a specific check_id. can be comma separated list
-          # quiet: true # optional: display only failed checks
-          # framework: terraform # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}
-          # output_format: sarif # optional: the output format, one of: cli, json, junitxml, github_failed_only, or sarif. Default: sarif
-          # download_external_modules: true # optional: download external terraform modules from public git repositories and terraform registry
-          # log_level: DEBUG # optional: set log level. Default WARNING
-          # config_file: path/this_file
-          # baseline: cloudformation/.checkov.baseline # optional: Path to a generated baseline file. Will only report results not in the baseline.
-          # container_user: 1000 # optional: Define what UID and / or what GID to run the container under to prevent permission issuesclear
+#       - name: Run Checkov Scan
+#         id: checkov
+#         uses: bridgecrewio/checkov-action@master
+#         with:
+#           directory: ${{ env.TERRAFORM_DIRECTORY }}
+#           soft_fail: true # optional: do not return an error code if there are failed checks
+#           # check: CKV_AWS_1 # optional: run only a specific check_id. can be comma separated list
+#           # skip_check: CKV_AWS_2 # optional: skip a specific check_id. can be comma separated list
+#           # quiet: true # optional: display only failed checks
+#           # framework: terraform # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}
+#           # output_format: sarif # optional: the output format, one of: cli, json, junitxml, github_failed_only, or sarif. Default: sarif
+#           # download_external_modules: true # optional: download external terraform modules from public git repositories and terraform registry
+#           # log_level: DEBUG # optional: set log level. Default WARNING
+#           # config_file: path/this_file
+#           # baseline: cloudformation/.checkov.baseline # optional: Path to a generated baseline file. Will only report results not in the baseline.
+#           # container_user: 1000 # optional: Define what UID and / or what GID to run the container under to prevent permission issuesclear
 
 #######################################################################################################################################################################################################
 
@@ -145,7 +145,7 @@ jobs:
     name: 'Terraform'
     runs-on: ubuntu-latest
     environment: Development
-    needs: [scan-terraform-config]
+#    needs: [scan-terraform-config]
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
