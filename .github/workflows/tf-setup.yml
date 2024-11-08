@@ -173,14 +173,7 @@ jobs:
   #       subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
 
     - name: Terraform Init
-      run: terraform init \
-            -upgrade \
-            -backend-config="resource_group_name=${{ vars.RESOURCE_GROUP_NAME }}" \
-            -backend-config="storage_account_name=${{ vars.STORAGE_ACCOUNT_NAME }}" \
-            -backend-config="container_name=${{ vars.CONTAINER_NAME }}" \
-            -backend-config="key=${{ vars.BLOB_NAME }}" \
-            -input=true \
-            -reconfigure
+      run: terraform init
 
 
   #         echo "🎯 Running Terraform Plan
