@@ -16,7 +16,7 @@ jobs:
     name: Deploy to Azure with Terraform
     runs-on: ubuntu-latest
     permissions: write-all
-    environment: dev
+    environment: Development
 
     defaults:
       run:
