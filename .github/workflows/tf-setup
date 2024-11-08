@@ -2,7 +2,7 @@ name: Create Infra with Terraforn
 
 on:
   push:
-  # branches: [dev]
+    branches: [dev]
   # pull_request:
   #   branches: [ main ]
 # Allows to run this workflow manually from the Actions tab
