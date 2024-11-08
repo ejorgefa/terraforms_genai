@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  WORKING_DIRECTORY: .github/terraform
+  WORKING_DIRECTORY: ./
 
 permissions: read-all
 
@@ -57,7 +57,7 @@ jobs:
             az storage container create --name ${{ vars.CONTAINER_NAME }} --account-name ${{ vars.STORAGE_ACCOUNT_NAME }}
 
             # generate backend.tf file
-            cd ./
+            cd ${{ env.WORKING_DIRECTOR }}
             cat <<EOT > terraform.tfstate
             terraform {
               backend "azurerm" {
