@@ -173,7 +173,15 @@ jobs:
   #       subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
 
     - name: Terraform Init
-      run: terraform init
+      id: init
+      env:
+        ARM_CLIENT_ID: ${{ secrets.CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+        ARM_TENANT_ID: ${{ secrets.TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
+      run: |
+
+        terraform init
 
 
   #         echo "🎯 Running Terraform Plan
